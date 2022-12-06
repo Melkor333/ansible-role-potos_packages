@@ -1,5 +1,6 @@
 ---
 
+# Not sure if necessary
 - name: Get os specific facts
   ansible.builtin.include_vars: '{{ item }}'
   with_first_found:
@@ -7,56 +8,10 @@
     - '{{ ansible_distribution }}.yml'
     - '{{ ansible_os_family }}.yml'
 
-- name: Create background dir
-  ansible.builtin.file:
-    path: '/usr/share/backgrounds'
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Get Wallpapers to remove
-  ansible.builtin.find:
-    paths: /usr/share/backgrounds
-    file_type: file
-  register: potos_wallpaper_backgrounds
-  changed_when: false
-
-- name: Install wallpapers
-  block:
-
-    - name: remove Wallpapers
-      ansible.builtin.file:
-        path: '/usr/share/backgrounds/{{ item }}'
-        state: absent
-      loop: '{{
-          (potos_wallpaper_backgrounds.files |
-          map(attribute="path") |
-          map("regex_replace","^\/usr\/share\/backgrounds\/(.*)","\1") |
-          list) |
-          difference(potos_wallpaper_images[1:]) |
-          difference([potos_wallpaper_default_name])
-          }}'
-
-    - name: Install custom default background
-      ansible.builtin.copy:
-        src: 'potos_wallpaper/{{ potos_wallpaper_images[0] }}'
-        dest: '/usr/share/backgrounds/{{ potos_wallpaper_default_name }}'
-        owner: root
-        group: root
-        mode: '0755'
-
-    - name: Install custom backgrounds
-      ansible.builtin.copy:
-        src: 'potos_wallpaper/{{ item }}'
-        dest: '/usr/share/backgrounds/{{ item | basename }}'
-        owner: root
-        group: root
-        mode: '0755'
-      loop: '{{ potos_wallpaper_images[1:] | default([]) }}'
-
-  when: potos_wallpaper_default_name is defined and
-        potos_wallpaper_images is defined and
-        potos_wallpaper_images is iterable and
-        potos_wallpaper_images is not string and
-        (potos_wallpaper_images | length > 0)
+- name: Install packages
+  ansible.builtin.package:
+    name: potos_packages
+    state: latest
+  when: potos_packages is defined and
+        potos_packages is not string and
+        (potos_packages | length > 0)

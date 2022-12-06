@@ -4,9 +4,9 @@
   hosts: all
   gather_facts: yes
   vars:
-    potos_wallpaper_images:
-      - "potos-wallpaper_test.png"
+    potos_packages:
+      - nix
   tasks:
     - name: run role
       ansible.builtin.include_role:
-        name: 'ansible-role-potos_wallpaper'
+        name: 'ansible-role-potos_packages'

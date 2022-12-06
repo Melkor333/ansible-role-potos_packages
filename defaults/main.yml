@@ -2,4 +2,5 @@
 
 # List of files to be found under `potos_wallpaper` to be added as background,
 # first element is set as default
-potos_wallpaper_images: []
+potos_packages:
+  - nix
